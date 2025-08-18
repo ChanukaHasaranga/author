@@ -22,7 +22,11 @@ namespace author.service.Profiles
 
             );// hash manually before saving
 
+            CreateMap<LoginDTO, Author>()
+           .ForMember(dest => dest.PasswordHash,
+           opt => opt.Ignore()
 
+           );// hash manually before saving
         }
     }
 }

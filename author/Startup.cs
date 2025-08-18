@@ -1,10 +1,13 @@
 ﻿using author.service.Authors;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace author
 {
@@ -34,10 +37,33 @@ namespace author
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
+            //JWT Authentication 
+            var key = Encoding.ASCII.GetBytes("076chanuka1003067_ThisIsLongSecretKey!!");
 
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
 
+ .AddJwtBearer(x =>
+ {
+     x.RequireHttpsMetadata = false;
+     x.SaveToken = true;
+     x.TokenValidationParameters = new TokenValidationParameters
+     {
+         ValidateIssuer = false,
+         ValidateAudience = false,
+         ValidateLifetime = true,
+         ValidateIssuerSigningKey = true,
+         IssuerSigningKey = new SymmetricSecurityKey(key)
+     };
+ });
 
+            services.AddAuthorization();
         }
+
+
 
 
 
@@ -55,6 +81,10 @@ namespace author
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            //for JWT 
+            app.UseAuthentication();
+            //
 
             app.UseAuthorization();
 
