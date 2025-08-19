@@ -13,6 +13,8 @@ namespace author.service.Authors
         public Author GetAuthor(int ID);
         public Author AddAuthor(Author author);
         public Author GetAuthorByEmail(string email);
+        public Author UpdateAuthor(int id, Author updateAuthor);
+
 
     }
 }

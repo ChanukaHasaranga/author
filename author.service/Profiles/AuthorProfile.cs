@@ -27,6 +27,12 @@ namespace author.service.Profiles
            opt => opt.Ignore()
 
            );// hash manually before saving
+
+
+            CreateMap<UpdateUserDTO, Author>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ForAllMembers(opts => { opts.Condition((src, dest, srcMember) => srcMember != null); });    // Skip nulls so only provided fields will overwrite
+
         }
     }
 }

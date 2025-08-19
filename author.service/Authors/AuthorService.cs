@@ -30,5 +30,22 @@ namespace author.service.Authors
         {
             return dbcontext.Author.FirstOrDefault(a => a.EmailAddress == email); // we didnt use find for this we use primary key for find
         }
+
+
+        public Author UpdateAuthor(int id, Author updateAuthor)
+        {
+            var author= dbcontext.Author.Find(id);
+            if (author == null)
+            {
+                return null;
+            }
+            author.FirstName = updateAuthor.FirstName ?? author.FirstName;
+            author.LastName = updateAuthor.LastName ?? author.LastName;
+            author.MobileNumber = updateAuthor.MobileNumber ?? author.MobileNumber;
+
+            dbcontext.SaveChanges();
+            return author;
+
+        }
     }
 }

@@ -110,5 +110,22 @@ namespace author.Controllers
                 Name = fullName
             });
         }
+
+        [HttpPut("UpdateUSer{id}")]
+        public ActionResult UpdateAuthor(int id, UpdateUserDTO UDTO)
+        {
+            var updateEntity = _mapper.Map<Author>(UDTO);
+            var result = _service.UpdateAuthor(id, updateEntity);
+            if (result==null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+
+            var authorforreturn = _mapper.Map<AuthorDTO>(result);
+            return Ok(authorforreturn);
+
+
+        }
+
     }
 }
