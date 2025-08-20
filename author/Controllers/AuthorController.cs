@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace author.Controllers
 {
@@ -45,7 +46,7 @@ namespace author.Controllers
         }
 
         [HttpPost("signup")]
-        public ActionResult<AuthorDTO> CreateAuthor(CreateAuthorDTO author)
+        public async Task<ActionResult<AuthorDTO>> CreateAuthor(CreateAuthorDTO author)
         {
             //check if email exits
             var exisiting = _service.GetAuthorByEmail(author.EmailAddress);
@@ -56,6 +57,30 @@ namespace author.Controllers
 
 
             var authorEntity = _mapper.Map<Author>(author);
+
+
+
+            //profile picture adding
+            if (author.ProfilePicture != null)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(author.ProfilePicture.FileName);
+                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/profile-pics");
+
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                var filePath = Path.Combine(folderPath, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await author.ProfilePicture.CopyToAsync(stream);
+                }
+
+                authorEntity.ProfilePictureURL = "/profile-pics/" + fileName;
+            }
+
+
 
             var hasher = new PasswordHasher<Author>();
             authorEntity.PasswordHash = hasher.HashPassword(authorEntity, author.Password);// Hash the password
@@ -81,7 +106,8 @@ namespace author.Controllers
             {
                 new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
                 new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
-                new Claim(ClaimTypes.Email, user.EmailAddress)
+                new Claim(ClaimTypes.Email, user.EmailAddress),
+                new Claim(ClaimTypes.Uri,user.ProfilePictureURL ?? "")
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSecret));
@@ -101,20 +127,46 @@ namespace author.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var email = User.FindFirstValue(ClaimTypes.Email);
+            var profilepicurl = User.FindFirstValue(ClaimTypes.Uri);
             var fullName = User.Identity?.Name;
 
             return Ok(new
             {
                 UserId = userId,
                 Email = email,
-                Name = fullName
+                Name = fullName,
+                ProfilePicURL=profilepicurl
             });
         }
 
         [HttpPut("UpdateUSer{id}")]
-        public ActionResult UpdateAuthor(int id, UpdateUserDTO UDTO)
+        public async Task<ActionResult> UpdateAuthor(int id, UpdateUserDTO UDTO)
         {
             var updateEntity = _mapper.Map<Author>(UDTO);
+
+
+
+            //profile picture update
+            if (UDTO.ProfilePicture != null)
+            {
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(UDTO.ProfilePicture.FileName);
+                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/profile-pics");
+
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                var filePath = Path.Combine(folderPath, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await UDTO.ProfilePicture.CopyToAsync(stream);
+                }
+
+                updateEntity.ProfilePictureURL = "/profile-pics/" + fileName;
+            }
+
+
             var result = _service.UpdateAuthor(id, updateEntity);
             if (result==null)
             {

@@ -25,6 +25,9 @@ namespace author.service.Models
         
         public string MobileNumber { get; set; }
 
-       
+
+        public string? ProfilePictureURL { get; set; }
+
+
     }
 }

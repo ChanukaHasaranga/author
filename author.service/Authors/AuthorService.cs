@@ -43,6 +43,11 @@ namespace author.service.Authors
             author.LastName = updateAuthor.LastName ?? author.LastName;
             author.MobileNumber = updateAuthor.MobileNumber ?? author.MobileNumber;
 
+            if (!string.IsNullOrEmpty(updateAuthor.ProfilePictureURL))
+            {
+                author.ProfilePictureURL = updateAuthor.ProfilePictureURL;
+            }
+
             dbcontext.SaveChanges();
             return author;
 

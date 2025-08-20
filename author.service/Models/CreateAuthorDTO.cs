@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,6 +26,10 @@ namespace author.service.Models
 
 
         public string Password { get; set; } //plain password,will be hashed
+
+        public IFormFile? ProfilePicture { get; set; } // File comes in multipart/form-data
+
+
 
     }
 }

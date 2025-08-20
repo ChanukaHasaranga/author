@@ -34,5 +34,9 @@ namespace author.Models
     public string PasswordHash { get; set; } //store hash password
 
 
+
+        public string? ProfilePictureURL { get; set; }
+
+
     }
 }
